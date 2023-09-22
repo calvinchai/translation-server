@@ -1,9 +1,9 @@
 import glob
 
-from flask import Flask, request, render_template, jsonify, logging
+from flask import Flask
 import requests
 from bs4 import BeautifulSoup as bs
-from bs4 import Comment, Doctype
+from bs4 import Comment, Doctype, Script, Stylesheet
 import os
 import yaml
 from config import AppConfig
@@ -229,12 +229,16 @@ def translate_content(soup, path):
     not_found_in_dict = set()
 
     for element in sorted(soup.find_all(string=True), key=lambda x: len(x.string.strip())):
-        if isinstance(element, Comment):
+        # if isinstance(element, Comment):
+        #     continue
+        # if isinstance(element, Doctype):
+        #     continue
+        # if isinstance(element, Script):
+        #     continue
+        if isinstance(element, (Comment, Doctype, Script, Stylesheet)):
             continue
-        if isinstance(element, Doctype):
-            continue
-        if 'html' in element.string:
-            print(element.__class__)
+        # if 'html' in element.string:
+        #     print(element.__class__)
         original_string = element.string.strip()
         translation = translate_string_with_dict(original_string, translation_dict)
         if not translation:
@@ -259,7 +263,7 @@ def translate_content(soup, path):
         if new_dict:
             not_found_in_dict.update(new_dict)
 
-    save_dict(path, {k: "" for k in not_found_in_dict})
+    save_dict(path, {k: "" for k in not_found_in_dict}, use_alternative=True)
 
     return soup
 
