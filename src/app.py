@@ -240,6 +240,8 @@ def translate_content(soup, path):
         # if 'html' in element.string:
         #     print(element.__class__)
         original_string = element.string.strip()
+        if not original_string:
+            continue
         translation = translate_string_with_dict(original_string, translation_dict)
         if not translation:
             if original_string not in translation_dict:
