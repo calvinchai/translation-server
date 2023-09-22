@@ -241,7 +241,7 @@ def translate_content(soup, path):
         #     print(element.__class__)
         original_string = element.string.strip()
         translation = translate_string_with_dict(original_string, translation_dict)
-        if not translation:
+        if not translation and original_string not in translation_dict:
             not_found_in_dict.add(original_string)
             continue
         element.replace_with(element.replace(original_string, translation))
