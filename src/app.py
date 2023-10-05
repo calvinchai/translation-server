@@ -16,31 +16,33 @@ global_translation_dict = {}
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def reroute(path):
-    # Define the target domain to which you want to redirect all requests
+    try:
+        # Define the target domain to which you want to redirect all requests
 
-    # Redirect the incoming request to the target domain
-    abs_path = AppConfig.target_domain + '/' + path
-    response = requests.get(abs_path)
-    # response.headers.add('Access-Control-Allow-Origin', '*')
-    if 'text/html' not in response.headers['Content-Type']:
-        return response.content
+        # Redirect the incoming request to the target domain
+        abs_path = AppConfig.target_domain + '/' + path
+        response = requests.get(abs_path)
+        # response.headers.add('Access-Control-Allow-Origin', '*')
+        if 'text/html' not in response.headers['Content-Type']:
+            return response.content
 
-    # replace href
-    soup = bs(response.text, 'html.parser')
+        # replace href
+        soup = bs(response.text, 'html.parser')
 
-    for link in soup.findAll('a'):
-        if link['href'].endswith('.pdf'):
-            continue
-        if link['href'].endswith('.ico'):
-            continue
-        link['href'] = link['href'].replace(AppConfig.target_domain, AppConfig.local_domain)
-    # find all text
-    if response.status_code == 404:
-        path = '404'
-    soup = translate_content(soup, path)
-    # replace all japanese to english
-    return soup.prettify()
-
+        for link in soup.findAll('a'):
+            if link['href'].endswith('.pdf'):
+                continue
+            if link['href'].endswith('.ico'):
+                continue
+            link['href'] = link['href'].replace(AppConfig.target_domain, AppConfig.local_domain)
+        # find all text
+        if response.status_code == 404:
+            path = '404'
+        soup = translate_content(soup, path)
+        # replace all japanese to english
+        return soup.prettify()
+    except Exception as e:
+        return str(e.__traceback__)
 
 """
 The content on the main page will be stored in root.yaml
